@@ -50,7 +50,9 @@ import {
   Layers,
   Sparkles,
   Zap,
-  Globe
+  Globe,
+  DollarSign,
+  Tag
 } from 'lucide-react';
 
 interface AdminModalProps {
@@ -110,6 +112,47 @@ export const AdminModal: React.FC<AdminModalProps> = ({
   // Product Editing / Creating State
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isCreatingProduct, setIsCreatingProduct] = useState(false);
+
+  // Variant & Pricing helpers
+  const handleVariantChange = (index: number, field: string, value: any) => {
+    if (!editingProduct) return;
+    const currentVariants = [...(editingProduct.variants || [])];
+    currentVariants[index] = {
+      ...currentVariants[index],
+      [field]: field === 'price' || field === 'wholesalePrice' || field === 'minWholesaleQty'
+        ? Math.max(0, Number(value) || 0)
+        : value
+    };
+    setEditingProduct({
+      ...editingProduct,
+      variants: currentVariants
+    });
+  };
+
+  const handleAddVariant = () => {
+    if (!editingProduct) return;
+    const currentVariants = editingProduct.variants || [];
+    setEditingProduct({
+      ...editingProduct,
+      variants: [
+        ...currentVariants,
+        { size: 'Botol 1 Liter', price: 15000, wholesalePrice: 12000, minWholesaleQty: 12 }
+      ]
+    });
+  };
+
+  const handleRemoveVariant = (index: number) => {
+    if (!editingProduct) return;
+    const currentVariants = editingProduct.variants || [];
+    if (currentVariants.length <= 1) {
+      alert('Produk harus memiliki minimal 1 ukuran kemasan dan harga!');
+      return;
+    }
+    setEditingProduct({
+      ...editingProduct,
+      variants: currentVariants.filter((_, i) => i !== index)
+    });
+  };
 
   // Legal Doc Editing / Creating State
   const [editingDoc, setEditingDoc] = useState<LegalDocument | null>(null);
@@ -1076,6 +1119,199 @@ export const AdminModal: React.FC<AdminModalProps> = ({
                             className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs bg-white dark:bg-slate-900"
                           />
                         </div>
+
+                        {/* KOLOM HARGA & VARIAN KEMASAN PRODUK */}
+                        <div className="space-y-3 sm:col-span-2 pt-3 border-t border-slate-200 dark:border-slate-700">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <div>
+                              <label className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                                <DollarSign className="w-4 h-4 text-teal-600" />
+                                <span>KOLOM HARGA & VARIAN KEMASAN PRODUK *</span>
+                              </label>
+                              <p className="text-[11px] text-slate-500">
+                                Masukkan harga eceran dan harga grosir untuk setiap ukuran kemasan (Jerigen 5L, Botol 1L, Drum, dll).
+                              </p>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={handleAddVariant}
+                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 dark:bg-teal-950/60 dark:hover:bg-teal-900 text-teal-700 dark:text-teal-300 text-xs font-bold transition border border-teal-200 dark:border-teal-800 self-start sm:self-auto"
+                            >
+                              <Plus className="w-3.5 h-3.5" />
+                              <span>+ Tambah Kemasan/Harga Lain</span>
+                            </button>
+                          </div>
+
+                          <div className="space-y-2.5">
+                            {(editingProduct?.variants || []).map((v, vIndex) => (
+                              <div
+                                key={vIndex}
+                                className="p-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 grid grid-cols-1 sm:grid-cols-12 gap-3 items-end shadow-sm"
+                              >
+                                <div className="sm:col-span-4 space-y-1">
+                                  <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                                    Ukuran Kemasan *
+                                  </label>
+                                  <input
+                                    type="text"
+                                    required
+                                    placeholder="Contoh: Jerigen 5 Liter, Botol 1L, Drum 20L"
+                                    value={v.size}
+                                    onChange={(e) => handleVariantChange(vIndex, 'size', e.target.value)}
+                                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs bg-slate-50 dark:bg-slate-800 font-semibold"
+                                  />
+                                </div>
+
+                                <div className="sm:col-span-3 space-y-1">
+                                  <label className="text-[11px] font-bold text-teal-700 dark:text-teal-300 flex items-center gap-1">
+                                    <Tag className="w-3 h-3" />
+                                    <span>Harga Jual Eceran (Rp) *</span>
+                                  </label>
+                                  <input
+                                    type="number"
+                                    required
+                                    min="0"
+                                    step="500"
+                                    placeholder="Contoh: 45000"
+                                    value={v.price || ''}
+                                    onChange={(e) => handleVariantChange(vIndex, 'price', e.target.value)}
+                                    className="w-full px-3 py-2 rounded-xl border border-teal-300 dark:border-teal-700 text-xs font-bold text-teal-800 dark:text-teal-200 bg-teal-50/50 dark:bg-teal-950/50"
+                                  />
+                                </div>
+
+                                <div className="sm:col-span-3 space-y-1">
+                                  <label className="text-[11px] font-bold text-emerald-700 dark:text-emerald-300">
+                                    Harga Grosir Pabrik (Rp)
+                                  </label>
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    step="500"
+                                    placeholder="Contoh: 38000"
+                                    value={v.wholesalePrice || ''}
+                                    onChange={(e) => handleVariantChange(vIndex, 'wholesalePrice', e.target.value)}
+                                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs bg-slate-50 dark:bg-slate-800"
+                                  />
+                                </div>
+
+                                <div className="sm:col-span-1 space-y-1">
+                                  <label className="text-[10px] font-bold text-slate-500" title="Minimal beli untuk harga grosir">
+                                    Min Qty
+                                  </label>
+                                  <input
+                                    type="number"
+                                    min="1"
+                                    placeholder="5"
+                                    value={v.minWholesaleQty || ''}
+                                    onChange={(e) => handleVariantChange(vIndex, 'minWholesaleQty', e.target.value)}
+                                    className="w-full px-2 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs text-center bg-slate-50 dark:bg-slate-800"
+                                  />
+                                </div>
+
+                                <div className="sm:col-span-1 flex justify-end pb-1">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleRemoveVariant(vIndex)}
+                                    className="p-2 rounded-xl text-rose-500 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/60 transition"
+                                    title="Hapus Kemasan Ini"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* STATUS STOK & VARIAN AROMA */}
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                            Status Ketersediaan Stok
+                          </label>
+                          <select
+                            value={editingProduct?.stockStatus || 'ready'}
+                            onChange={(e) =>
+                              setEditingProduct(
+                                editingProduct
+                                  ? {
+                                      ...editingProduct,
+                                      stockStatus: e.target.value as Product['stockStatus']
+                                    }
+                                  : null
+                              )
+                            }
+                            className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs bg-white dark:bg-slate-900"
+                          >
+                            <option value="ready">Ready Stok (Siap Kirim)</option>
+                            <option value="preorder">Pre-Order Pabrik (PO)</option>
+                            <option value="limited">Stok Terbatas</option>
+                          </select>
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                            Pilihan Varian Aroma (Pisahkan dengan koma)
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="Contoh: Fresh Citrus, Lemon, Apel Hijau"
+                            value={(editingProduct?.aromaVariants || []).join(', ')}
+                            onChange={(e) =>
+                              setEditingProduct(
+                                editingProduct
+                                  ? {
+                                      ...editingProduct,
+                                      aromaVariants: e.target.value
+                                        .split(',')
+                                        .map((s) => s.trim())
+                                        .filter(Boolean)
+                                    }
+                                  : null
+                              )
+                            }
+                            className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs bg-white dark:bg-slate-900"
+                          />
+                        </div>
+
+                        {/* FORMULA & pH */}
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                            Bahan Aktif / Formula (Opsional)
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="Contoh: Total Surfaktan Aktif 18%, Ekstrak Jeruk"
+                            value={editingProduct?.activeIngredients || ''}
+                            onChange={(e) =>
+                              setEditingProduct(
+                                editingProduct
+                                  ? { ...editingProduct, activeIngredients: e.target.value }
+                                  : null
+                              )
+                            }
+                            className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs bg-white dark:bg-slate-900"
+                          />
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                            Tingkat pH (Opsional)
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="Contoh: 6.5 - 7.5 (Netral & Aman di Kulit)"
+                            value={editingProduct?.pH || ''}
+                            onChange={(e) =>
+                              setEditingProduct(
+                                editingProduct
+                                  ? { ...editingProduct, pH: e.target.value }
+                                  : null
+                              )
+                            }
+                            className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs bg-white dark:bg-slate-900"
+                          />
+                        </div>
                       </div>
 
                       <div className="flex justify-end gap-2 pt-2">
@@ -1090,7 +1326,18 @@ export const AdminModal: React.FC<AdminModalProps> = ({
                         </button>
                         <button
                           onClick={() => {
-                            if (!editingProduct?.name) return;
+                            if (!editingProduct?.name?.trim()) {
+                              alert('Harap isi Nama Produk Sabun!');
+                              return;
+                            }
+                            if (
+                              !editingProduct.variants ||
+                              editingProduct.variants.length === 0 ||
+                              !editingProduct.variants[0].price
+                            ) {
+                              alert('Harap isi harga produk pada kolom harga!');
+                              return;
+                            }
                             let updatedList = [...products];
                             const existsIndex = updatedList.findIndex(
                               (p) => p.id === editingProduct.id
@@ -1103,9 +1350,9 @@ export const AdminModal: React.FC<AdminModalProps> = ({
                             onSaveProducts(updatedList);
                             setIsCreatingProduct(false);
                             setEditingProduct(null);
-                            showToast('Katalog produk berhasil diperbarui!');
+                            showToast('Katalog produk dan harga berhasil disimpan!');
                           }}
-                          className="px-5 py-2 rounded-xl bg-teal-600 text-white font-bold text-xs"
+                          className="px-5 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs shadow-md transition"
                         >
                           Simpan Produk Sabun
                         </button>
