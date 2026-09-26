@@ -254,11 +254,8 @@ Bisa minta informasi stok dan estimasi pengiriman ke alamat saya? Terima kasih.`
 
                       {/* Price & Packaging Overview */}
                       <div className="pt-2 border-t border-slate-100 dark:border-slate-700/60 flex items-baseline justify-between">
-                        <div>
-                          <div className="text-[10px] uppercase font-bold text-slate-400">Mulai dari:</div>
-                          <div className="text-base sm:text-lg font-black text-teal-700 dark:text-teal-300">
-                            Rp {primaryVariant.price.toLocaleString('id-ID')}
-                          </div>
+                        <div className="text-base sm:text-lg font-black text-teal-700 dark:text-teal-300">
+                          Rp {primaryVariant.price.toLocaleString('id-ID')}
                         </div>
                         <span className="text-xs font-semibold px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
                           {primaryVariant.size}
