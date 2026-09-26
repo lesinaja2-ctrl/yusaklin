@@ -244,7 +244,7 @@ Bisa minta informasi stok dan estimasi pengiriman ke alamat saya? Terima kasih.`
 
                       {/* Feature Highlights */}
                       <div className="space-y-1 text-xs text-slate-600 dark:text-slate-300">
-                        {product.features.slice(0, 2).map((feat, i) => (
+                        {(product.features || []).slice(0, 2).map((feat, i) => (
                           <div key={i} className="flex items-center gap-1.5 line-clamp-1">
                             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
                             <span className="truncate">{feat}</span>
