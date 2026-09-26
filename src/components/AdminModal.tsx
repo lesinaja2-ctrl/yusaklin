@@ -154,6 +154,39 @@ export const AdminModal: React.FC<AdminModalProps> = ({
     });
   };
 
+  // Product Features / Bullet points helpers
+  const handleFeatureChange = (index: number, value: string) => {
+    if (!editingProduct) return;
+    const currentFeatures = [...(editingProduct.features || [])];
+    currentFeatures[index] = value;
+    setEditingProduct({
+      ...editingProduct,
+      features: currentFeatures
+    });
+  };
+
+  const handleAddFeature = () => {
+    if (!editingProduct) return;
+    const currentFeatures = editingProduct.features || [];
+    setEditingProduct({
+      ...editingProduct,
+      features: [...currentFeatures, '']
+    });
+  };
+
+  const handleRemoveFeature = (index: number) => {
+    if (!editingProduct) return;
+    const currentFeatures = editingProduct.features || [];
+    if (currentFeatures.length <= 1) {
+      alert('Produk harus memiliki minimal 1 poin keunggulan!');
+      return;
+    }
+    setEditingProduct({
+      ...editingProduct,
+      features: currentFeatures.filter((_, i) => i !== index)
+    });
+  };
+
   // Legal Doc Editing / Creating State
   const [editingDoc, setEditingDoc] = useState<LegalDocument | null>(null);
   const [isCreatingDoc, setIsCreatingDoc] = useState(false);
@@ -1120,6 +1153,86 @@ export const AdminModal: React.FC<AdminModalProps> = ({
                           />
                         </div>
 
+                        {/* KEUNGGULAN PRODUK (POIN UTAMA PADA KARTU PRODUK) */}
+                        <div className="space-y-3 sm:col-span-2 p-3.5 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <div>
+                              <label className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                                <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                                <span>Poin Keunggulan / Fitur Produk (Tampil pada Kartu Katalog) *</span>
+                              </label>
+                              <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                                <strong>2 baris pertama</strong> akan langsung muncul pada kartu produk di halaman katalog (seperti <em>&quot;Formula konsentrat tinggi&quot;</em> dan <em>&quot;Busa melimpah &amp; lembut di tangan&quot;</em>).
+                              </p>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={handleAddFeature}
+                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-sm self-start sm:self-auto"
+                            >
+                              <Plus className="w-3.5 h-3.5" />
+                              <span>+ Tambah Poin</span>
+                            </button>
+                          </div>
+
+                          <div className="space-y-2">
+                            {(editingProduct?.features && editingProduct.features.length > 0
+                              ? editingProduct.features
+                              : ['Formula konsentrat tinggi', 'Busa melimpah & lembut di tangan']
+                            ).map((feat, fIndex) => (
+                              <div key={fIndex} className="flex items-center gap-2">
+                                <span
+                                  className={`text-[10px] font-bold px-2.5 py-1.5 rounded-lg shrink-0 ${
+                                    fIndex < 2
+                                      ? 'bg-emerald-600 text-white shadow-sm'
+                                      : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
+                                  }`}
+                                  title={fIndex < 2 ? 'Tampil langsung di kartu produk katalog' : 'Tampil di rincian lengkap'}
+                                >
+                                  {fIndex < 2 ? `★ Kartu #${fIndex + 1}` : `Poin #${fIndex + 1}`}
+                                </span>
+                                <input
+                                  type="text"
+                                  required
+                                  value={feat}
+                                  onChange={(e) => handleFeatureChange(fIndex, e.target.value)}
+                                  placeholder="Tulis keunggulan produk di sini..."
+                                  className="flex-1 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs bg-white dark:bg-slate-900 font-medium"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveFeature(fIndex)}
+                                  className="p-2 rounded-xl text-rose-500 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/60 transition"
+                                  title="Hapus Keunggulan Ini"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Petunjuk Penggunaan */}
+                        <div className="space-y-1 sm:col-span-2">
+                          <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                            Petunjuk Penggunaan / Cara Pakai
+                          </label>
+                          <textarea
+                            rows={2}
+                            placeholder="Contoh: Campurkan 30ml sabun dengan 3 liter air bersih..."
+                            value={editingProduct?.usageInstructions || ''}
+                            onChange={(e) =>
+                              setEditingProduct(
+                                editingProduct
+                                  ? { ...editingProduct, usageInstructions: e.target.value }
+                                  : null
+                              )
+                            }
+                            className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs bg-white dark:bg-slate-900"
+                          />
+                        </div>
+
                         {/* KOLOM HARGA & VARIAN KEMASAN PRODUK */}
                         <div className="space-y-3 sm:col-span-2 pt-3 border-t border-slate-200 dark:border-slate-700">
                           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
@@ -1339,13 +1452,24 @@ export const AdminModal: React.FC<AdminModalProps> = ({
                               return;
                             }
                             let updatedList = [...products];
+                            const cleanedFeatures = (editingProduct.features || [])
+                              .map((f) => f.trim())
+                              .filter(Boolean);
+                            const productToSave: Product = {
+                              ...editingProduct,
+                              features:
+                                cleanedFeatures.length > 0
+                                  ? cleanedFeatures
+                                  : ['Formula konsentrat tinggi', 'Busa melimpah & lembut di tangan']
+                            };
+
                             const existsIndex = updatedList.findIndex(
-                              (p) => p.id === editingProduct.id
+                              (p) => p.id === productToSave.id
                             );
                             if (existsIndex >= 0) {
-                              updatedList[existsIndex] = editingProduct;
+                              updatedList[existsIndex] = productToSave;
                             } else {
-                              updatedList.unshift(editingProduct);
+                              updatedList.unshift(productToSave);
                             }
                             onSaveProducts(updatedList);
                             setIsCreatingProduct(false);
