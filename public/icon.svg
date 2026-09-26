@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="gradBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f766e" />
+      <stop offset="50%" stop-color="#0d9488" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+    <linearGradient id="dropGrad" x1="20%" y1="10%" x2="80%" y2="90%">
+      <stop offset="0%" stop-color="#67e8f9" />
+      <stop offset="60%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#0284c7" />
+    </linearGradient>
+    <linearGradient id="leafGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a7f3d0" />
+      <stop offset="100%" stop-color="#10b981" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#042f2e" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <!-- Background Shield Rounded Rect -->
+  <rect width="512" height="512" rx="112" fill="url(#gradBg)"/>
+
+  <!-- Subtle concentric decorative rings -->
+  <circle cx="256" cy="256" r="210" stroke="white" stroke-opacity="0.1" stroke-width="3" />
+  <circle cx="256" cy="256" r="170" stroke="white" stroke-opacity="0.15" stroke-width="2" stroke-dasharray="8 8" />
+
+  <!-- Main Droplet Form -->
+  <g filter="url(#shadow)">
+    <path d="M256 90 C256 90 145 220 145 315 C145 385 200 425 256 425 C312 425 367 385 367 315 C367 220 256 90 256 90 Z" fill="url(#dropGrad)"/>
+    <!-- Highlight Reflection on Droplet -->
+    <path d="M210 180 C200 215 190 250 190 300 C190 310 192 320 194 328 C186 318 180 300 180 275 C180 220 210 180 210 180 Z" fill="#ffffff" opacity="0.6"/>
+  </g>
+
+  <!-- Clean Sparkles / Stars -->
+  <path d="M370 120 L378 145 L403 153 L378 161 L370 186 L362 161 L337 153 L362 145 Z" fill="#fef08a" opacity="0.95"/>
+  <path d="M120 160 L125 178 L143 183 L125 188 L120 206 L115 188 L97 183 L115 178 Z" fill="#ffffff" opacity="0.9"/>
+  <path d="M390 370 L394 384 L408 388 L394 392 L390 406 L386 392 L372 388 L386 384 Z" fill="#a7f3d0" opacity="0.85"/>
+
+  <!-- Bio/Fresh Leaf Accent -->
+  <path d="M256 255 C295 240 330 260 325 305 C320 340 280 355 256 345 C256 315 256 280 256 255 Z" fill="url(#leafGrad)" opacity="0.9"/>
+
+  <!-- Letter Y / Flowing wave in center -->
+  <path d="M232 230 L256 270 L280 230" stroke="#ffffff" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M256 270 L256 350" stroke="#ffffff" stroke-width="14" stroke-linecap="round"/>
+</svg>
