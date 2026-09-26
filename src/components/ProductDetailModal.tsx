@@ -144,7 +144,7 @@ Mohon informasi ketersediaan stok, pengiriman ke alamat saya, dan total pembayar
                   Keunggulan Produk:
                 </span>
                 <div className="space-y-1 text-xs text-slate-700 dark:text-slate-300">
-                  {product.features.map((feat, idx) => (
+                  {(product.features || []).map((feat, idx) => (
                     <div key={idx} className="flex items-start gap-2">
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
                       <span>{feat}</span>
